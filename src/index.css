@@ -1,0 +1,53 @@
+:root {
+  /* Editorial stage + paper (Figma 2:10336 outer) */
+  --color-stage: #ece9e4;
+  --color-paper: #fdf8ee;
+  --color-page: var(--color-paper);
+  --color-page-alt: #f5f0e6;
+  --color-page-back: #f5f2eb;
+  --color-rule: rgba(26, 24, 22, 0.18);
+  --color-ink: #1a1816;
+  --color-muted: #5c5854;
+  --color-accent: #4a423c;
+  --color-accent-soft: rgba(74, 66, 60, 0.35);
+  --color-placeholder: #b5b5b5;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Outfit', system-ui, sans-serif;
+  /* Dusty blue — verso / inner spread (cover card uses Figma 2:10336 tokens below) */
+  --color-cover-cloth: #bdd3e0;
+  --color-cover-ink: #1e2832;
+  /* Figma cover 2:10336 — card, monogram */
+  --color-cover-card-bg: #ebe6d9;
+  --color-cover-monogram-border: #ece9e4;
+  --color-cover-type-light: #ffffff;
+  --color-cover-face-shadow: 0 6px 20px rgba(25, 25, 25, 0.2);
+  --font-cover-shippori: 'Shippori Mincho B1', Georgia, 'Times New Roman', serif;
+  --font-cover-symbols: 'Noto Sans Symbols 2', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-ink);
+  background-color: var(--color-stage);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

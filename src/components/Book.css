@@ -1,0 +1,561 @@
+/* Two-page spread: static verso (left) + 3D flip stack on recto (right, hinge at gutter) */
+.book-viewport {
+  --flip-duration: 650ms;
+  --spread-layout-duration: 0.55s;
+  /* One leaf width; spread = two columns */
+  --book-page-w: min(42vw, 520px);
+  display: grid;
+  grid-template-columns: var(--book-page-w) var(--book-page-w);
+  width: calc(var(--book-page-w) * 2);
+  max-width: min(96vw, calc(var(--book-page-w) * 2 + 4px));
+  min-height: min(72vh, 580px);
+  height: min(72vh, 580px);
+  margin: 0 auto;
+  overflow: visible;
+  border-radius: var(--book-radius);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.22), 0 8px 20px rgba(0, 0, 0, 0.12);
+  transition:
+    width var(--spread-layout-duration) cubic-bezier(0, 0, 0.2, 1),
+    max-width var(--spread-layout-duration) cubic-bezier(0, 0, 0.2, 1),
+    grid-template-columns var(--spread-layout-duration) cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Narrowing uses reversed easing (ease-in) so close mirrors open */
+.book-viewport--closing {
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.book-viewport--closed {
+  grid-template-columns: 1fr;
+  width: var(--book-page-w);
+  max-width: min(96vw, var(--book-page-w));
+}
+
+/* Dusty blue — left spread only (cover front uses Figma sage face) */
+.book-verso {
+  background: var(--color-cover-cloth);
+}
+
+.page-sheet--cover .page-face--front {
+  background: var(--color-cover-card-bg);
+  box-shadow: var(--color-cover-face-shadow);
+}
+
+.book-verso {
+  border-right: 1px solid rgba(30, 40, 50, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(30, 40, 50, 0.06);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-viewport {
+    transition: none;
+  }
+}
+
+.book-verso .verso-page__kicker {
+  color: rgba(30, 40, 50, 0.72);
+  border-bottom-color: rgba(30, 40, 50, 0.14);
+}
+
+.book-verso .verso-page__body {
+  color: rgba(30, 40, 50, 0.9);
+}
+
+.book-verso .verso-page__visual {
+  box-shadow: inset 0 0 0 1px rgba(30, 40, 50, 0.12);
+}
+
+.book-verso .verso-page__folio {
+  color: rgba(30, 40, 50, 0.62);
+  border-top-color: rgba(30, 40, 50, 0.14);
+}
+
+.book-recto-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  perspective: 1600px;
+  /* Hinge at gutter (left edge of right leaf) */
+  perspective-origin: left center;
+  min-width: 0;
+}
+
+.page-sheet {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.page-sheet-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform var(--flip-duration) cubic-bezier(0.4, 0.02, 0.2, 1);
+  will-change: transform;
+}
+
+.page-sheet-inner--flipped {
+  transform: rotateY(-180deg);
+}
+
+.page-face {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--book-radius);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.page-face--front {
+  background: var(--color-paper);
+  box-shadow: inset 0 0 0 1px var(--color-rule);
+}
+
+.page-face--back {
+  transform: rotateY(180deg);
+  background: linear-gradient(145deg, var(--color-page-back) 0%, #faf6ed 55%, #f2ebe0 100%);
+  box-shadow: inset 0 0 0 1px var(--color-rule);
+}
+
+/* Page content - shared */
+.book-page {
+  background: var(--color-paper);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  box-shadow: inset 0 0 0 1px var(--color-rule);
+}
+
+.book-page--cover {
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
+}
+
+.book-page--verso {
+  background: var(--color-page-back);
+  box-shadow: inset 0 0 0 1px var(--color-rule);
+}
+
+/* Verso (left leaf + flip back faces) */
+.verso-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  box-sizing: border-box;
+}
+
+.verso-page--cover-back,
+.verso-page--message-back {
+  justify-content: space-between;
+}
+
+.verso-page__kicker {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.verso-page__body {
+  font-family: var(--font-serif);
+  font-size: clamp(0.88rem, 2vw, 0.98rem);
+  line-height: 1.65;
+  color: var(--color-ink);
+  margin: 0 0 0.75rem;
+  white-space: pre-line;
+}
+
+.verso-page__visual {
+  position: relative;
+  flex: 1;
+  min-height: 100px;
+  background: var(--color-placeholder);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.verso-page__visual--tall {
+  min-height: 55%;
+}
+
+.verso-page__visual-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  /* Keeps previous frame visible until new bitmap paints (reduces flash on src change) */
+  background: var(--color-placeholder);
+}
+
+.verso-page__folio {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+/* Cover — Figma node 2:10336 (full-bleed photo, white type, monogram) */
+.cover-page {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-cover-card-bg);
+}
+
+.cover-page__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #8c9caf;
+}
+
+.cover-page__media-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.cover-page__media-fallback {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #c4d0de 0%, #9eb0c4 50%, #8c9caf 100%);
+}
+
+.cover-page__content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(1.15rem, 5vw, 1.85rem) clamp(0.65rem, 3vw, 1rem)
+    clamp(1.15rem, 5.5vw, 2rem);
+  box-sizing: border-box;
+}
+
+.cover-page__title {
+  margin: 0;
+  width: 100%;
+  max-width: 27.125rem;
+  text-align: center;
+  font-family: var(--font-cover-shippori);
+  font-size: clamp(1.05rem, 3.4vw, 1.75rem);
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-cover-type-light);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.18);
+}
+
+.cover-page__title--top {
+  flex-shrink: 0;
+}
+
+.cover-page__title--bottom {
+  flex-shrink: 0;
+}
+
+.cover-page__monogram {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  min-height: 0;
+  /* Widen row into content padding; side padding keeps ✽ off the cover edge */
+  --cover-monogram-outdent: clamp(0.5rem, 3vw, 1.1rem);
+  --cover-monogram-edge-inset: clamp(0.65rem, 3.6vw, 1.15rem);
+  width: calc(100% + 2 * var(--cover-monogram-outdent));
+  margin-inline: calc(-1 * var(--cover-monogram-outdent));
+  padding-inline: var(--cover-monogram-edge-inset);
+  box-sizing: border-box;
+}
+
+.cover-page__ornament {
+  font-family: var(--font-cover-symbols);
+  font-size: clamp(1rem, 2.6vw, 1.25rem);
+  color: var(--color-cover-type-light);
+  line-height: 1;
+  flex-shrink: 0;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.15);
+}
+
+.cover-page__monogram-rings {
+  position: relative;
+  width: 4rem;
+  height: 6.25rem;
+  flex-shrink: 0;
+}
+
+.cover-page__ring {
+  position: absolute;
+  border: 1px solid var(--color-cover-monogram-border);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.cover-page__ring--outer {
+  inset: 0;
+}
+
+.cover-page__ring--inner {
+  top: 4px;
+  right: 4px;
+  bottom: 4px;
+  left: 4px;
+}
+
+.cover-page__initials {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  padding-bottom: 0.15rem;
+}
+
+.cover-page__initial {
+  font-family: var(--font-cover-shippori);
+  font-size: clamp(1.05rem, 3.4vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--color-cover-type-light);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Message recto — single column (verso / imagery lives on left spread) */
+.message-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.message-page__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: clamp(1rem, 3vw, 1.65rem);
+  min-width: 0;
+  position: relative;
+}
+
+.message-page__kicker {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.message-page__body-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  min-height: 0;
+}
+
+.message-page__body-stack:not(.message-page__body-stack--multi) .message-page__content {
+  flex: 1;
+}
+
+.message-page__body-stack--multi {
+  justify-content: flex-start;
+  gap: 0;
+}
+
+.message-page__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.message-page__body-stack--multi .message-page__content {
+  flex: 0 1 auto;
+}
+
+.message-page__content--segment {
+  flex: 0 1 auto;
+  padding-top: 1rem;
+  margin-top: 0.35rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+.message-page__body {
+  font-family: var(--font-serif);
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--color-ink);
+  margin: 0 0 1.25rem;
+  white-space: pre-line;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.message-page__author {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0;
+}
+
+.message-page__folio {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 1rem 0 0;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+/* Book container - layout and nav */
+.book-app {
+  --book-radius: 2px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  gap: 1.5rem;
+}
+
+/* Wider stage (two page widths) so the book sits centered like an open spread */
+.book-spread {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: min(100vw, 1120px);
+  min-height: 0;
+}
+
+.book-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: min(100vw, 1120px);
+  margin: 0 auto;
+  padding: 0.5rem;
+  border-radius: var(--book-radius);
+  overflow: visible;
+}
+
+.book-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.book-nav__btn {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.55rem 1rem;
+  min-height: 44px;
+  border-radius: 2px;
+  border: 1px solid var(--color-ink);
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.book-nav__btn:hover:not(:disabled) {
+  background: rgba(26, 24, 22, 0.06);
+}
+
+.book-nav__btn:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.book-nav__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.book-nav__btn--prev {
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.book-nav__btn--next {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  border-color: var(--color-ink);
+}
+
+.book-nav__btn--next:hover:not(:disabled) {
+  background: #2a2624;
+}
+
+.book-nav__progress {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
