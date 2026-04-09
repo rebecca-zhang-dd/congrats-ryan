@@ -46,7 +46,7 @@ export function VersoCoverBack({ imageSrc }) {
 export function VersoMessageBack({ message, pageNumber, imageSrc }) {
   return (
     <div className="verso-page verso-page--message-back">
-      <p className="verso-page__kicker">From the team</p>
+      <p className="verso-page__kicker">Congratulations</p>
       {message.versoBody ? (
         <p className="verso-page__body">{message.versoBody}</p>
       ) : null}
